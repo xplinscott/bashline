@@ -178,16 +178,16 @@ function mkline {
   colors $hostcolors
 
   if [ -n "$SSH_CLIENT" ] ; then
-    echo -n " "
+    echo -n " 🔒"
   fi
 
   echo -n " $hostshort "
   colors ${hostcolors#* } 31
-  echo -n " "
+  echo -n "▶ "
   colors 231 31
   echo -n "$meshort "
   colors 31 240
-  echo -n " "
+  echo -n "▶ "
 
   delim=""
 
@@ -209,7 +209,7 @@ function mkline {
       colors 252 240
       echo -n "$x "
 
-      delim=" "
+      delim="❭ "
     done
   done <<< "$path"
 
@@ -217,14 +217,14 @@ function mkline {
 
   if [ -n "$branch" ] ; then
     colors $colorleft 17
-    echo -n " "
+    echo -n "▶ "
 
     if [ -n "$status" ] ; then
       colors ${diu[$status]} 17
-      echo -n " $status"
+      echo -n "┣ $status"
     else
       colors 238 17
-      echo -n ""
+      echo -n "┣"
     fi
 
     echo -n "$branch "
@@ -233,14 +233,14 @@ function mkline {
 
   if [ "$error" -ne 0 ] ; then
     colors $colorleft 52
-    echo -n " "
+    echo -n "▶ "
     colors 231 52
     echo -n "$error "
     colorleft=52
   fi
 
   colors $colorleft
-  echo -n " "
+  echo -n "▶ "
   colors
 }
 
