@@ -71,7 +71,7 @@ declare -i shorten=0
 
 if [ ${BASH_VERSINFO[0]} -ge 4 ] ; then
   declare -A hosts # customize these:
-  hosts[default]="220 208"
+  hosts[default]="16 208"
   # cads
   hosts[lois]="16 160"
   hosts[clark]="16 160"
