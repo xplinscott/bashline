@@ -67,43 +67,41 @@ error=$1
 branch=$2
 
 # length to shorten username and hostname to
-shorten=2
+declare -i shorten=0
 
 if [ ${BASH_VERSINFO[0]} -ge 4 ] ; then
   declare -A hosts # customize these:
-  hosts[default]="16 221"
-  hosts[lala]="230 128"
-  hosts[lois]="201 55"
-  hosts[clark]="231 160"
-  hosts[swamp]="148 22"
-  hosts[xenon]="160 234"
-  hosts[kristi]="17 214"
-  hosts[tengen]="231 198"
-  hosts[creeper]="16 112"
-  hosts[infocom]="226 211"
-  hosts[krypton]="99 54"
-  hosts[macpork]="87 99"
-  hosts[icecrown]="51 18"
-  hosts[magellan]="226 202"
-  hosts[ferdinand]="88 172"
-  hosts[swingline]="124 228"
-  hosts[snickerdoodle]="214 25"
+  hosts[default]="220 208"
+  # cads
+  hosts[lois]="16 160"
+  hosts[clark]="16 160"
+  hosts[magellan]="16 160"
+  hosts[swingline]="16 160"
+  hosts[tengen]="16 160"
+  hosts[infocom]="16 160"
+  # reporting
+  hosts[xenon]="16 166"
+  hosts[krypton]="16 166"
+  hosts[ferdinand]="16 166"
+  # corp
+  hosts[icecrown]="16 214"
+  # dev
+  hosts[swamp]="189 55"
+  # own
+  hosts[seattle]="16 148"
 
   declare -A favs # customize these:
   favs[$HOME]="~"
-  favs[/var/www/html/superjer.com]="♥ sj"
-  favs[/var/www/html/mcdiddys.com]="♥ mcd"
-  favs[/weirdly/long/path/that/makes/the/prompt/sad]="♥ a short name"
 
   declare -A diu
-  diu[D]=27
-  diu[I]=46
-  diu[U]=160
-  diu[DI]=51
-  diu[DU]=165
-  diu[IU]=226
-  diu[DIU]=231
-  diu['?']=196
+  diu[D]=220
+  diu[I]=220
+  diu[U]=220
+  diu[DI]=220
+  diu[DU]=220
+  diu[IU]=220
+  diu[DIU]=220
+  diu['?']=220
 else
   hosts="16 22"
   favs=""
@@ -138,6 +136,7 @@ function colors {
 }
 
 function mkline {
+  local datetime=$(date +%r)
   local hostname=${HOSTNAME%%.*}
   local hostshort=${hostname:0:$shorten}
   local meshort=${USER:0:$shorten}
@@ -175,18 +174,29 @@ function mkline {
     hostcolors=${hosts[default]}
   fi
 
+  colors 250 236
+  echo -n " $datetime "
+  colors 236 ${hostcolors#* }
+  echo -n " "
   colors $hostcolors
 
   if [ -n "$SSH_CLIENT" ] ; then
-    echo -n " "
+    echo -n " "
   fi
-
-  echo -n " $hostshort "
+  if [ $shorten -ne 0 ]; then
+      echo -n "$hostshort "
+  else
+      echo -n "$hostname "
+  fi
   colors ${hostcolors#* } 31
-  echo -n " "
+  echo -n " "
   colors 231 31
-  echo -n "$meshort "
-  colors 31 240
+  if [ $shorten -ne 0 ]; then
+      echo -n "$meshort "
+  else
+      echo -n "$USER "
+  fi
+  colors 31 236
   echo -n " "
 
   delim=""
@@ -202,33 +212,33 @@ function mkline {
       fi
 
       if [ -n "$delim" ] ; then
-        colors 236 240
+        colors 245 236
         echo -n $delim
       fi
 
-      colors 252 240
+      colors 250 236
       echo -n "$x "
 
       delim=" "
     done
   done <<< "$path"
 
-  local colorleft=240
+  local colorleft=236
 
   if [ -n "$branch" ] ; then
-    colors $colorleft 17
+    colors $colorleft 236
     echo -n " "
 
     if [ -n "$status" ] ; then
-      colors ${diu[$status]} 17
+      colors ${diu[$status]} 236
       echo -n " $status"
     else
-      colors 238 17
+      colors 250 236
       echo -n ""
     fi
 
     echo -n "$branch "
-    colorleft=17
+    colorleft=236
   fi
 
   if [ "$error" -ne 0 ] ; then
