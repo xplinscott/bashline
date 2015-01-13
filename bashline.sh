@@ -212,7 +212,7 @@ function mkline {
       fi
 
       if [ -n "$delim" ] ; then
-        colors 245 236
+        colors 234 236
         echo -n $delim
       fi
 
@@ -226,19 +226,19 @@ function mkline {
   local colorleft=236
 
   if [ -n "$branch" ] ; then
-    colors $colorleft 236
+    colors $colorleft 238
     echo -n " "
 
     if [ -n "$status" ] ; then
-      colors ${diu[$status]} 236
+      colors ${diu[$status]} 238
       echo -n " $status"
     else
-      colors 250 236
+      colors 250 238
       echo -n ""
     fi
 
     echo -n "$branch "
-    colorleft=236
+    colorleft=238
   fi
 
   if [ "$error" -ne 0 ] ; then
