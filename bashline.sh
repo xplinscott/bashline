@@ -12,21 +12,40 @@ if [ ${BASH_VERSINFO[0]} -ge 4 ] ; then
   bashline_favs[$HOME]="~"
 fi
 
+declare -i bashline_outputlen
+declare -i bashline_cols
+bashline_curcolor="\[\e[0m\]"
+
 function bashline_colors {
   if [ $# -lt 1 ] ; then
-    echo -n "\[\e[0m\]"
+    bashline_curcolor="\[\e[0m\]"
   elif [ $# -lt 2 ] ; then
-    echo -n "\[\e[0;38;5;${1};49m\]"
+    bashline_curcolor="\[\e[0;38;5;${1};49m\]"
   else
-    echo -n "\[\e[0;38;5;${1};48;5;${2}m\]"
+    bashline_curcolor="\[\e[0;38;5;${1};48;5;${2}m\]"
   fi
+  echo -n $bashline_curcolor
+}
+
+function bashline_echo {
+  bashline_outputlen+=${#1}
+  if [ $bashline_outputlen -ge $bashline_cols ] ; then
+    echo "\[\e[0m\]"
+    echo -n $bashline_curcolor
+    bashline_outputlen=${#1}
+  fi
+  echo -n "$*"
 }
 
 function bashline_prompt {
+  bashline_outputlen=0
+  bashline_cols=999
+  hash tput >/dev/null 2>&1 && bashline_cols=$(tput cols)
+
   local error=$1
   local branch=$2
 
-  local sym_ssh='⚿'
+  local sym_ssh='╾'
   local sym_sep='❭'
   local sym_section='▶'
   local sym_branch='┣'
@@ -63,7 +82,7 @@ function bashline_prompt {
   local git=":"
   hash git >/dev/null 2>&1 && git=git
 
-  local timestamp=$(date +%r)
+  local timestamp=$(echo $(date +%l:%M:%S\ %P))
 
   local hostname=${HOSTNAME%%.*}
   if [ -z "$hostname" ] ; then hostname=$($t1s hostname -s) ; fi
@@ -80,10 +99,16 @@ function bashline_prompt {
   if [ -z "$path" ] ; then path=PATH_NOT_FOUND ; fi
   local pathfav=__ROOT__$path
 
+  declare -i matchlen
+  declare -i thismatchlen
+  matchlen=0
   for x in "${!bashline_favs[@]}" ; do
-    if [[ $path == $x* ]] ; then
-      pathfav=${bashline_favs["$x"]}${path:${#x}}
-      break
+    if [[ $path == "$x"* ]] ; then
+      thismatchlen=${#x}
+      if [ $thismatchlen -gt $matchlen ] ; then
+        pathfav=${bashline_favs["$x"]}${path:${#x}}
+        matchlen=$thismatchlen
+      fi
     fi
   done
 
@@ -118,6 +143,9 @@ function bashline_prompt {
   branch=${branch//\)}
   branch=${branch//|/ }
 
+  # update the terminal window title
+  echo -ne "\[\033]0;$hostshort ❭ $meshort ❭ $path\007\]"
+
   if [ -n "${bashline_hosts[$hostname]}" ] ; then
     hostcolors=${bashline_hosts[$hostname]}
   else
@@ -125,22 +153,22 @@ function bashline_prompt {
   fi
 
   bashline_colors 250 236
-  echo -n " $timestamp "
+  bashline_echo " $timestamp "
   bashline_colors 236 ${hostcolors#* }
-  echo -n "$sym_section"
+  bashline_echo "$sym_section"
   bashline_colors $hostcolors
 
   if [ -n "$SSH_CLIENT" ] ; then
-    echo -n " $sym_ssh"
+    bashline_echo " $sym_ssh"
   fi
 
-  echo -n " $hostshort "
+  bashline_echo " $hostshort "
   bashline_colors ${hostcolors#* } 31
-  echo -n "$sym_section "
+  bashline_echo "$sym_section "
   bashline_colors 231 31
-  echo -n "$meshort "
+  bashline_echo "$meshort "
   bashline_colors 31 240
-  echo -n "$sym_section "
+  bashline_echo "$sym_section "
 
   delim=""
 
@@ -156,11 +184,11 @@ function bashline_prompt {
 
       if [ -n "$delim" ] ; then
         bashline_colors 236 240
-        echo -n "$delim "
+        bashline_echo "$delim "
       fi
 
       bashline_colors 252 240
-      echo -n "$x "
+      bashline_echo "$x "
 
       delim="$sym_sep"
     done
@@ -170,30 +198,30 @@ function bashline_prompt {
 
   if [ -n "$branch" ] ; then
     bashline_colors $colorleft 17
-    echo -n "$sym_section "
+    bashline_echo "$sym_section "
 
     if [ -n "$status" ] ; then
       bashline_colors ${diu[$status]} 17
-      echo -n "$sym_branch $status"
+      bashline_echo "$sym_branch $status"
     else
       bashline_colors 240 17
-      echo -n "$sym_branch"
+      bashline_echo "$sym_branch"
     fi
 
-    echo -n "$branch "
+    bashline_echo "$branch "
     colorleft=17
   fi
 
   if [ "$error" -ne 0 ] ; then
     bashline_colors $colorleft 52
-    echo -n "$sym_section "
+    bashline_echo "$sym_section "
     bashline_colors 231 52
-    echo -n "$error "
+    bashline_echo "$error "
     colorleft=52
   fi
 
   bashline_colors $colorleft
-  echo -n "$sym_section "
+  bashline_echo "$sym_section "
   bashline_colors
 }
 
