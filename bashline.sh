@@ -85,8 +85,7 @@ function bashline_prompt {
   local git=":"
   hash git >/dev/null 2>&1 && git=git
 
-  local timestamp=$(echo $(date +%l:%M:%S\ %P))
-  local timestamp=$(echo $(date +%k%M%S))
+  local timestamp=$(echo $(date +%r))
 
   local hostshort=""
   local hostname=${HOSTNAME%%.*}
@@ -209,11 +208,11 @@ function bashline_prompt {
   fi
 
   bashline_echo " $hostshort "
-  bashline_colors ${hostcolors#* } 31
+  bashline_colors ${hostcolors#* } 12
   bashline_echo "$sym_section "
-  bashline_colors 231 31
+  bashline_colors 0 12
   bashline_echo "$meshort "
-  bashline_colors 31 240
+  bashline_colors 12 240
   bashline_echo "$sym_section "
 
   delim=""
@@ -243,19 +242,19 @@ function bashline_prompt {
   local colorleft=240
 
   if [ -n "$branch" ] ; then
-    bashline_colors $colorleft 17
+    bashline_colors $colorleft 0
     bashline_echo "$sym_section "
 
     if [ -n "$status" ] ; then
-      bashline_colors ${diu[$status]} 17
+      bashline_colors ${diu[$status]} 0
       bashline_echo "$sym_branch $status"
     else
-      bashline_colors 240 17
+      bashline_colors 240 0
       bashline_echo "$sym_branch"
     fi
 
     bashline_echo " $branch "
-    colorleft=17
+    colorleft=0
   fi
 
   if [ "$error" -ne 0 ] ; then
